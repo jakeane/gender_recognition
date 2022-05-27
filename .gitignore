@@ -2,3 +2,4 @@ venv
 audio_data
 
 .ipynb_checkpoints
+__pycache__
