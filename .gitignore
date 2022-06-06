@@ -3,3 +3,5 @@ audio_data
 
 .ipynb_checkpoints
 __pycache__
+
+*.png

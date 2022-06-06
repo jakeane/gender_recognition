@@ -6,6 +6,8 @@ import librosa
 import numpy as np
 import parselmouth as pm
 import allosaurus.app
+from scipy.io import wavfile
+import pyreaper
 
 model = allosaurus.app.read_recognizer("eng2102")
 
@@ -40,9 +42,37 @@ def get_pitch_intonation(filename, sampling_rate: int) -> Tuple[float, float]:
     sound = pm.Sound(y, sr)
 
     pitches: np.ndarray = sound.to_pitch().selected_array["frequency"]
-    pitches = pitches[pitches != 0]
+    pitches = pitches[(pitches != 0) & (pitches < 350)]
 
     return float(pitches.mean()), float(pitches.std())
+
+
+def get_pitch_parselmouth(filename, sampling_rate: int) -> Tuple[float, float]:
+    y, sr = librosa.load(filename, sr=sampling_rate)
+    sound = pm.Sound(y, sr)
+
+    pitches: np.ndarray = sound.to_pitch().selected_array["frequency"]
+    pitches = pitches[(pitches != 0) & (pitches < 350)]
+
+    return float(pitches.mean()), float(np.median(pitches))
+
+
+def get_pitch_librosa(filename, sampling_rate: int) -> Tuple[float, float]:
+    y, sr = librosa.load(filename, sr=sampling_rate)
+
+    f0, vf, _ = librosa.pyin(y, fmin=65, fmax=350, sr=sr)
+    pitches = f0[vf]
+
+    return float(pitches.mean()), float(np.median(pitches))
+
+
+def get_pitch_pyreaper(filename) -> Tuple[float, float]:
+    sr, y = wavfile.read(filename)
+
+    _, _, _, f0, _ = pyreaper.reaper(y, sr)
+    pitches = f0[f0 != -1]
+
+    return float(pitches.mean()), float(np.median(pitches))
 
 
 @dataclass
@@ -96,6 +126,7 @@ def get_formant_diffs(filename, sampling_rate: int) -> Tuple[float, float]:
         f2s = f2s[~np.isnan(f2s)]
 
         f1, f2 = np.median(f1s), np.median(f2s)
+        phone_seg.formant1, phone_seg.formant2 = f1, f2
 
         phone = phone_seg.phone
 
@@ -106,11 +137,12 @@ def get_formant_diffs(filename, sampling_rate: int) -> Tuple[float, float]:
         f2_default = vowel_defaults[phone]["f2"]
         f1_diffs.append(f1 - f1_default)
         f2_diffs.append(f2 - f2_default)
+        print(phone_seg)
 
     f1_diff = sum(f1_diffs) / len(f1_diffs)
     f2_diff = sum(f2_diffs) / len(f2_diffs)
 
-    return float(f1_diff), float(f2_diff)
+    return float(f1_diff), float(f2_diff), phones, f1_diffs, f2_diffs
 
 
 def _are_formants_invalid(phone: str, f1: float, f2: float) -> bool:
