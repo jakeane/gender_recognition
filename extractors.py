@@ -137,12 +137,11 @@ def get_formant_diffs(filename, sampling_rate: int) -> Tuple[float, float]:
         f2_default = vowel_defaults[phone]["f2"]
         f1_diffs.append(f1 - f1_default)
         f2_diffs.append(f2 - f2_default)
-        print(phone_seg)
 
     f1_diff = sum(f1_diffs) / len(f1_diffs)
     f2_diff = sum(f2_diffs) / len(f2_diffs)
 
-    return float(f1_diff), float(f2_diff), phones, f1_diffs, f2_diffs
+    return float(f1_diff), float(f2_diff)
 
 
 def _are_formants_invalid(phone: str, f1: float, f2: float) -> bool:

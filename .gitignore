@@ -5,3 +5,5 @@ audio_data
 __pycache__
 
 *.png
+*.m4a
+*.wav
