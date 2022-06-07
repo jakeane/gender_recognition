@@ -14,6 +14,7 @@ from tqdm import tqdm
 
 def mcgill():
     data = list()
+    # iterate through all files from men and women, ignore children
     for directory in os.listdir("./audio_data/mcgill"):
         if directory.startswith("F") or directory.startswith("M"):
             is_male = directory.startswith("M")
@@ -41,6 +42,7 @@ def voxforge():
         with open(f"./audio_data/voxforge/{d}/etc/README") as f:
             text = f.read()
 
+        # parse README for information
         gender = re.search(r"Gender: ([\w ]+)", text)
         age_range = re.search(r"Age Range: ([\w ]+)", text)
         language = re.search(r"Language: ([\w ]+)", text)
@@ -64,6 +66,7 @@ def voxforge():
             else "N/A",
         }
 
+        # use information for filter out bad samples
         if info["gender"].lower() not in ["male", "female"]:
             continue
         if info["age_range"].lower() != "adult":

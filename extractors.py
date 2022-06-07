@@ -94,12 +94,16 @@ class PhoneSegment:
 def get_phones(filename) -> List[PhoneSegment]:
     res: str = model.recognize(filename, timestamp=True)
 
+    # parse results from phone recognizer
     segments = res.split("\n")
     phone_times = [(phone, float(time)) for time, _, phone in map(str.split, segments)]
+
+    # calculate duration of each phone
     durations = [
         _clamp(round(phone_times[i][1] - phone_times[i - 1][1], 4))
         for i in range(1, len(phone_times))
     ] + [0.2]
+
     return [PhoneSegment(t, d, p) for (p, t), d in zip(phone_times, durations)]
 
 
@@ -111,16 +115,18 @@ def get_formant_diffs(filename, sampling_rate: int) -> Tuple[float, float]:
     y, sr = librosa.load(filename, sr=sampling_rate)
     phones = get_phones(filename)
     for phone_seg in filter(lambda ps: ps.phone in vowels, phones):
+        # extract vowel segment from audio
         start = int(sr * phone_seg.start)
         end = int(sr * (phone_seg.start + phone_seg.duration)) + 1
-
         segment = y[start:end]
 
+        # load vowel segment to Praat
         sound = pm.Sound(segment, sr)
         formant = sound.to_formant_burg(None, 5)
 
         limit = int(1000 * phone_seg.duration)
 
+        # calculate Formant 1 and Formant 2 over duration of vowel segment
         f1s = np.fromiter(
             (formant.get_value_at_time(1, i / 1000) for i in range(limit)),
             dtype=np.float32,
@@ -137,6 +143,7 @@ def get_formant_diffs(filename, sampling_rate: int) -> Tuple[float, float]:
 
         phone = phone_seg.phone
 
+        # throw away phones that are out of range, as they may be misclassified vowels
         if _are_formants_invalid(phone, f1, f2):
             continue
 
