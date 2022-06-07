@@ -1,3 +1,11 @@
+# Extract Data
+# June 7th, 2022
+# Adrienne Ko (Adrienne.Ko.23@dartmouth.edu)
+# Jack Keane (John.F.Keane.22@dartmouth.edu)
+
+# Extracts the three main features (pitch, intonation, resonance/f1/f2) from the data
+
+
 from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd

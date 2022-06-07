@@ -1,3 +1,10 @@
+# Scrape VoxForge Data
+# June 7th, 2022
+# Adrienne Ko (Adrienne.Ko.23@dartmouth.edu)
+# Jack Keane (John.F.Keane.22@dartmouth.edu)
+
+# Scrapes the VoxForge website for voice samples.
+
 import tarfile
 import io
 from concurrent.futures import ThreadPoolExecutor

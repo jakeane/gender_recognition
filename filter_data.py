@@ -1,3 +1,10 @@
+# Filter Data
+# June 7th, 2022
+# Adrienne Ko (Adrienne.Ko.23@dartmouth.edu)
+# Jack Keane (John.F.Keane.22@dartmouth.edu)
+
+# Filters data based on relevance to our project (ie. languange, dialect, mic type, etc.)
+
 import os
 import re
 
